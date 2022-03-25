@@ -1,6 +1,14 @@
+/*********************************************************************/
+//Todo
+// Impliment interrupt handler so I can take a picture every 1min.
+// To make timelapse movie and watering system.
+// 
+// Dvide into submodules
+//
+//
 
 #include <rpcWiFi.h>
-//
+
 #include"TFT_eSPI.h"
 #include <PubSubClient.h>
 
@@ -229,6 +237,7 @@ void GetData()
 
 
 
+/*********************************************************************/
 void setup_wifi() {
 
   delay(10);
@@ -253,6 +262,7 @@ void setup_wifi() {
 
 
 
+/*********************************************************************/
 void reconnect() {
   // Loop until we're reconnected
   while (!client.connected()) {
@@ -279,6 +289,7 @@ void reconnect() {
 }
 
 
+/*********************************************************************/
 
 //Read the text file that contains credential information.
 //Line 1 is MQTT Username.
