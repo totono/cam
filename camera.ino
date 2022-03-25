@@ -28,7 +28,7 @@ File cred;
 PubSubClient client(wioClient);
 
 
-const byte cameraAddr = (CAM_ADDR << 5);  // addr
+const byte cameraAddr = (CAM_ADDR << 5);
 const int buttonPin = A5;                 // the number of the pushbutton pin
 unsigned long picTotalLen = 0;            // picture length
 int picNameNum = 0;
@@ -42,7 +42,7 @@ void setup()
     while (!Serial) {};
     Serial1.begin(115200);
     while (!Serial1) {};
-    pinMode(WIO_KEY_A, INPUT_PULLUP);    // initialize the pushbutton pin as an input
+//    pinMode(WIO_KEY_A, INPUT_PULLUP);    // initialize the pushbutton pin as an input
     Serial.println("Initializing SD card....");
     while (!SD.begin(SDCARD_SS_PIN, SDCARD_SPI)) {};
 
@@ -65,12 +65,17 @@ void setup()
 void loop()
 {
 
-  if (!client.connected()) {
-    reconnect();
-  }
-  client.loop();
+    if (!client.connected()) {
+        reconnect();
+    }
+    client.loop();
+    delay(200);
+    Capture();
+    GetData();
 
 
+//press button to take a picture does not work currently for test purpose.
+/*
     int n = 0;
     while(1){
         Serial.println("\r\nPress the button to take a picture");
@@ -89,7 +94,7 @@ void loop()
             n++ ;
         }
     }
-}
+*/}
 /*********************************************************************/
 void clearRxBuf()
 {
@@ -212,11 +217,13 @@ void GetData()
                 if (++retry_cnt < 100) goto retry;
                 else break;
             }
+            //Send Image packet to MQTT Broker.
             client.publish("WTout/jpg",(const uint8_t *)&pkt[4],cnt-6);
         }
         cmd[4] = 0xf0;
         cmd[5] = 0xf0;
         sendCmd(cmd, 6);
+        //Send terminator to write image file.
         client.publish("WTout/jpg/done","0");
 }
 
@@ -258,7 +265,8 @@ void reconnect() {
       Serial.println("connected");
       // Once connected, publish an announcement...
       client.publish("WTout", "hello world");
-      // ... and resubscribe
+      // ... and resubscribe.
+      //No one publish to WTin currently.
       client.subscribe("WTin");
     } else {
       Serial.print("failed, rc=");
@@ -270,6 +278,13 @@ void reconnect() {
   }
 }
 
+
+
+//Read the text file that contains credential information.
+//Line 1 is MQTT Username.
+//Line 2 is MQTT Password.
+//Line 3 is SSID.
+//Line 4 is WiFi Password.
 void credReader(File file,String *mqtt_user, String *mqtt_pass , String *ssid, String *wifi_pass) {
   
   int i = 0;
